@@ -400,7 +400,7 @@ class Xliff_Skeleton extends Xliff_Node {
  */
 class Xliff_Notes extends Xliff_Node {
 	protected $tag_name = 'body';
-	protected $supported_leaf_nodes = array(
+	protected $supported_containers = array(
 		'note'	=> 'Xliff_Note',
 	);
 }
