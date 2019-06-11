@@ -54,6 +54,13 @@ class Xliff_Node{
 		'target'        => 'Xliff_Node',
 	);
 
+	static protected $plurals = array(
+		'files' => 'file',
+		'units' => 'unit',
+		'notes' => 'note',
+		'segments' => 'segment',
+		'group' => 'groups',
+	);
 
 	/**
 	 * Holds element's attributes
@@ -223,7 +230,16 @@ class Xliff_Node{
 				$this->leaf_nodes[$tag_name]->set_tag_name( $tag_name );
 			}
 			return ! empty( $this->leaf_nodes[$tag_name] ) ? $this->leaf_nodes[$tag_name] : false;
+		// check for "plural form" ( $tag_name . 's' )
+		// e.g. if $tag_name is "units" and we can't see a "units",
+		// check if we've got a container of "unit"
+		} elseif ( substr( $tag_name, -1 ) === 's' ) {
+			$maybe_singular_tag_name = substr($tag_name, 0,-1 );
+			if ( ! empty( $this->supported_containers[ $maybe_singular_tag_name ] ) ) {
+				return $this->containers[ $maybe_singular_tag_name ] ?? [];
+			}
 		}
+
 		throw new Exception( get_class( $this ) . ' does not support ' . $tag_name . ' elements.' );
 	}
 
