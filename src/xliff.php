@@ -38,7 +38,7 @@
  */
 class Xliff_Node{
 
-	protected $tag_name_to_class_mapping = array(
+	static protected $tag_name_to_class_mapping = array(
 		'xliff'         => 'Xliff_Document',
 		'file'          => 'Xliff_File',
 		'skeleton'      => 'Xliff_Skeleton',
@@ -274,8 +274,8 @@ class Xliff_Node{
 		}
 
 		// check if tag is supported
-		if ( self::$tag_name_to_class_mapping[$element->tagName] ) {
-			$class = self::$tag_name_to_class_mapping[$element->tagName];
+		if ( static::$tag_name_to_class_mapping[$element->tagName] ) {
+			$class = static::$tag_name_to_class_mapping[$element->tagName];
 		} else {
 			$class = 'Xliff_Node';
 		}
@@ -368,7 +368,7 @@ class Xliff_Document extends Xliff_Node {
 		if ( ! isset( $dom->documentElement ) || $dom->documentElement->tagName !== 'xliff' ) {
 			throw new Exception( "Not an XLIFF document" );
 		}
-		return self::fromDOMElement( $dom->documentElement );
+		return static::from_DOM_element( $dom->documentElement );
 	}
 }
 
