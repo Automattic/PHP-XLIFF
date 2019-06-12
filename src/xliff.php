@@ -38,7 +38,7 @@
  */
 class Xliff_Node{
 
-	protected $tag_name_to_class_mapping = array(
+	static protected $tag_name_to_class_mapping = array(
 		'xliff'         => 'Xliff_Document',
 		'file'          => 'Xliff_File',
 		'skeleton'      => 'Xliff_Skeleton',
@@ -54,6 +54,13 @@ class Xliff_Node{
 		'target'        => 'Xliff_Node',
 	);
 
+	static protected $plurals = array(
+		'files' => 'file',
+		'units' => 'unit',
+		'notes' => 'note',
+		'segments' => 'segment',
+		'group' => 'groups',
+	);
 
 	/**
 	 * Holds element's attributes
@@ -223,7 +230,16 @@ class Xliff_Node{
 				$this->leaf_nodes[$tag_name]->set_tag_name( $tag_name );
 			}
 			return ! empty( $this->leaf_nodes[$tag_name] ) ? $this->leaf_nodes[$tag_name] : false;
+		// check for "plural form" ( $tag_name . 's' )
+		// e.g. if $tag_name is "units" and we can't see a "units",
+		// check if we've got a container of "unit"
+		} elseif ( substr( $tag_name, -1 ) === 's' ) {
+			$maybe_singular_tag_name = substr($tag_name, 0,-1 );
+			if ( ! empty( $this->supported_containers[ $maybe_singular_tag_name ] ) ) {
+				return $this->containers[ $maybe_singular_tag_name ] ?? [];
+			}
 		}
+
 		throw new Exception( get_class( $this ) . ' does not support ' . $tag_name . ' elements.' );
 	}
 
@@ -274,8 +290,8 @@ class Xliff_Node{
 		}
 
 		// check if tag is supported
-		if ( self::$tag_name_to_class_mapping[$element->tagName] ) {
-			$class = self::$tag_name_to_class_mapping[$element->tagName];
+		if ( static::$tag_name_to_class_mapping[$element->tagName] ) {
+			$class = static::$tag_name_to_class_mapping[$element->tagName];
 		} else {
 			$class = 'Xliff_Node';
 		}
@@ -368,7 +384,7 @@ class Xliff_Document extends Xliff_Node {
 		if ( ! isset( $dom->documentElement ) || $dom->documentElement->tagName !== 'xliff' ) {
 			throw new Exception( "Not an XLIFF document" );
 		}
-		return self::fromDOMElement( $dom->documentElement );
+		return static::from_DOM_element( $dom->documentElement );
 	}
 }
 
@@ -400,7 +416,7 @@ class Xliff_Skeleton extends Xliff_Node {
  */
 class Xliff_Notes extends Xliff_Node {
 	protected $tag_name = 'body';
-	protected $supported_leaf_nodes = array(
+	protected $supported_containers = array(
 		'note'	=> 'Xliff_Note',
 	);
 }
